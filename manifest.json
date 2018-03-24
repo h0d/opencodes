@@ -1,11 +1,12 @@
 {
   "manifest_version": 2,
 
-  "name": "",
-  "description": "Privacy enhancer",
+  "name": "Clairvoyant",
+  "description": "Removes secrets, you didn't even see",
+  "version": "0.1",
 
   "background": {
-    "scripts": ["exif.js", "deeplearn.js", "background.js"]
+    "scripts": ["exif.js"]
   },
 
   "permissions": ["<all_urls>"],
@@ -13,7 +14,7 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["main.js"]
+      "js": ["contentscript.js"]
     }
   ]
 }

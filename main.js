@@ -10,7 +10,7 @@ function handleChange(e) {
 
     const dt = new ClipboardEvent('').clipboardEvent || new DataTransfer();
 
-    for (let file of files) {
+    for (let file of e.target.files) {
         const reader = new FileReader();
         reader.onloadend = handleFile(file, dt);
         reader.readAsArrayBuffer(file);

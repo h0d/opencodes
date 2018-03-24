@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<title>OpenCodes Input File Modification PoC</title>
 </head>
-<body>
+<body ondrop="console.log('hello')">
 	<form>
 		<label for="file"><h3>feed me a text file</h3></label>
 		<input type="file" id="file" accept=".json, .txt, .md, .py, .hs, .org">
@@ -16,6 +16,9 @@
 	<iframe src=""></iframe>
 	<h3>after:</h3>
 	<iframe src=""></iframe>
+  <script>
+   document.addEventListener('dragover', (e) => { console.log(e) });
+  </script>
 	<script>
 		const frames = document.querySelectorAll('iframe');
 		const input = document.querySelector('input[type=file]');

@@ -1,13 +1,14 @@
-let lastChange = Date.now()
-
 const inputs = document.querySelector('input[type=file]');
 for (let input of inputs) {
     input.addEventListener('change', handleChange);
 }
 
+document.addEventListener('dragover', handleChange);
+
 function handleChange(e) {
+    if (e.target.hasBeenHandled) return;
+
     const dt = new ClipboardEvent('').clipboardEvent || new DataTransfer();
-    // FIXME avoid infinite loop
 
     for (let file of files) {
         const reader = new FileReader();
@@ -16,6 +17,7 @@ function handleChange(e) {
     }
 
     e.target.files = dt.files;
+    e.target.hasBeenHandled = true;
 }
 
 function handleFile(file, dataTransfer) {

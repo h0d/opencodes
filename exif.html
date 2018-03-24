@@ -8,35 +8,63 @@
     <input type="file" id="files" />
     <img id="im"/>
     <script src="piexif.js"></script>
+    
     <script>
+        var test = {
+            "0th" : [piexif.ImageIFD.Model],
+            "1st" : [],
+            "Exif" : [],
+            "GPS" : [],
+            "Interop" : []
+        }
+
+
         function handleFileSelect(evt) {
             var file = evt.target.files[0];
 
-            var zeroth = {};
-            zeroth[piexif.ImageIFD.Model] = "potato"
-
-            var exifObj = {"0th":zeroth};
-           var exifbytes = piexif.dump(exifObj);
+            var counter = {
+                "0th" : 0,
+                "1st" : 0,
+                "Exif" : 0,
+                "GPS" : 0,
+                "Interop" : 0
+            }
 
             var reader = new FileReader();
             reader.onloadend = function (e) {
                 var exifObj = piexif.load(e.target.result);
+
+                console.log(exifObj);
 
                 for (var ifd in exifObj) {
                     if (ifd == "thumbnail") {
                         continue;
                     }
                     console.log("-" + ifd);
+
+                    if(!(ifd in test))
+                        continue;
+                    
+                    var el = test[ifd];
+
+                    for(var repl in el){
+                        var v = el[repl]
+                        console.log(exifObj[ifd][v])
+                        delete exifObj[ifd][v];
+                        counter[ifd] += 1;
+                    }
+
                     for (var tag in exifObj[ifd]) {
                         console.log("  " + piexif.TAGS[ifd][tag]["name"] + ":" + exifObj[ifd][tag]);
                     }
                 }
 
-                var inserted = piexif.insert(exifbytes, e.target.result);
+                console.log(counter);
+                //var inserted = piexif.insert(exifbytes, e.target.result);
                 //var image = new Image();
                 //image.src = inserted;
 
-                document.getElementById("im").src = inserted;
+                //document.getElementById("im").src = inserted;
             };
             reader.readAsDataURL(file);
         }

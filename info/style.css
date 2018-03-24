@@ -1,0 +1,32 @@
+html {
+    background: url("bg.jpg") no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+.info-grid {
+    font-size: 2em;
+    align-content: center;
+    text-align: center;
+    text-shadow:
+        0.05em 0 black,
+        0 0.05em black,
+        -0.05em 0 black,
+        0 -0.05em black;
+}
+
+.info-hd {
+    color: aliceblue;
+    
+}
+
+.info{
+    font-size: 3em;
+    color: #FF6138;
+}
+
+#content{
+    padding-top: 2em;
+}

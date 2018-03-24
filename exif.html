@@ -1,0 +1,48 @@
+<html>
+
+<head>
+    <title>ExifTest</title>
+</head>
+
+<body>
+    <input type="file" id="files" />
+    <img id="im"/>
+    <script src="piexif.js"></script>
+    <script>
+        function handleFileSelect(evt) {
+            var file = evt.target.files[0];
+
+            var zeroth = {};
+            zeroth[piexif.ImageIFD.Model] = "potato"
+
+            var exifObj = {"0th":zeroth};
+           var exifbytes = piexif.dump(exifObj);
+
+            var reader = new FileReader();
+            reader.onloadend = function (e) {
+                var exifObj = piexif.load(e.target.result);
+
+                for (var ifd in exifObj) {
+                    if (ifd == "thumbnail") {
+                        continue;
+                    }
+                    console.log("-" + ifd);
+                    for (var tag in exifObj[ifd]) {
+                        console.log("  " + piexif.TAGS[ifd][tag]["name"] + ":" + exifObj[ifd][tag]);
+                    }
+                }
+
+                var inserted = piexif.insert(exifbytes, e.target.result);
+                //var image = new Image();
+                //image.src = inserted;
+
+                document.getElementById("im").src = inserted;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        document.getElementById('files').addEventListener('change', handleFileSelect, false);
+    </script>
+</body>
+
+</html>

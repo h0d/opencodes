@@ -1,0 +1,19 @@
+{
+  "manifest_version": 2,
+
+  "name": "",
+  "description": "Privacy enhancer",
+
+  "background": {
+    "scripts": ["exif.js", "deeplearn.js", "background.js"]
+  },
+
+  "permissions": ["<all_urls>"],
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["main.js"]
+    }
+  ]
+}

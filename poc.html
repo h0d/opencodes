@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>OpenCodes Input File Modification PoC</title>
+</head>
+<body>
+	<form>
+		<label for="file"><h3>feed me a text file</h3></label>
+		<input type="file" id="file" accept=".json, .txt, .md, .py, .hs, .org">
+		<p>I'll replace vowels with '@'</p>
+		<input type="submit" value="ok">
+	</form>
+	<br>
+	<h3>before:</h3>
+	<iframe src=""></iframe>
+	<h3>after:</h3>
+	<iframe src=""></iframe>
+	<script>
+		const frames = document.querySelectorAll('iframe');
+		const input = document.querySelector('input[type=file]');
+
+		let prevFile = undefined;
+
+		function handleChange() {
+			// Identify file
+			const file = input.files[0];
+			if (prevFile === file) return;
+
+			// feedback
+			console.log('Input changed from ', input.files[0]);
+			frames[0].src = window.URL.createObjectURL(input.files[0]);
+
+			// Prepare reading
+			const reader = new FileReader();
+			reader.onloadend = handleFile(file);
+
+			reader.readAsText(file);
+		}
+
+		function handleFile(file) {
+			return function(e) {
+				// get FileReader content from event
+				const res = e.target.result;
+
+				// Create blob to go from plain text to URL
+				// apparently File 'extends' Blob so this may not be necessary
+				const blob = new Blob([res.replace(/[aeiou]/ig, '@')], {type: 'text/plain'});
+
+				const newFile = new File([blob], file.name + '.altered', {
+					type: file.type,
+					lastModified: 0 // file.lastModified
+				});
+
+				prevFile = newFile;
+
+				// Writing into a FileList is only possible in Chromium through the `items` attribute of a DataTransfer object
+				// Then the input's FileList can be asigned to that of the DataTransfer obj
+				// This limitation can be bypassed in FF
+				// https://stackoverflow.com/a/47642446
+				// https://stackoverflow.com/a/47172409
+				const dt = new DataTransfer();
+				dt.items.add(newFile);
+
+				input.files = dt.files;
+
+				// feedback
+				console.log('...to ', input.files[0]);
+				frames[1].src = window.URL.createObjectURL(input.files[0]);
+			};
+		}
+
+		input.onchange = handleChange;
+	</script>
+</body>
+</html>

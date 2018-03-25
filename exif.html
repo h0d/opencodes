@@ -6,29 +6,38 @@
 
 <body>
     <input type="file" id="files" />
-    <img id="im"/>
+    <img id="im" />
     <script src="piexif.js"></script>
-    
+
     <script>
         var test = {
-            "0th" : [piexif.ImageIFD.Model],
-            "1st" : [],
-            "Exif" : [],
-            "GPS" : [],
-            "Interop" : []
+            "0th": [piexif.ImageIFD.Model],
+            "1st": [],
+            "Exif": [],
+            "GPS": [],
+            "Interop": []
         }
 
-
-        function handleFileSelect(evt) {
+        async function handleFileSelect(evt) {
             var file = evt.target.files[0];
 
+            /*await chrome.storage.sync.get(['exif'], function (result) {
+                if (result)
+                    test = result;
+            });*/
+
             var counter = {
-                "0th" : 0,
-                "1st" : 0,
-                "Exif" : 0,
-                "GPS" : 0,
-                "Interop" : 0
+                "0th": 0,
+                "1st": 0,
+                "Exif": 0,
+                "GPS": 0,
+                "Interop": 0
             }
+
+            await chrome.storage.sync.get(['counter'], function (result) {
+                if (result)
+                    counter = result;
+            });
 
             var reader = new FileReader();
             reader.onloadend = function (e) {
@@ -42,12 +51,12 @@
                     }
                     console.log("-" + ifd);
 
-                    if(!(ifd in test))
+                    if (!(ifd in test))
                         continue;
-                    
+
                     var el = test[ifd];
 
-                    for(var repl in el){
+                    for (var repl in el) {
                         var v = el[repl]
                         console.log(exifObj[ifd][v])
                         delete exifObj[ifd][v];
@@ -60,6 +69,13 @@
                 }
 
                 console.log(counter);
+
+                chrome.storage.sync.set({
+                    'counter': counter
+                }, function () {
+
+                });
+
                 //var inserted = piexif.insert(exifbytes, e.target.result);
                 //var image = new Image();
                 //image.src = inserted;

@@ -8,16 +8,21 @@ squeezeNet.load();
 
 function infer(imageEl) {
     console.clear();
-    
+
     checkImage(imageEl);
 }
 
-async function checkImage(imageEl){
+async function checkImage(imageEl) {
     var test = {
-        "681":0.2, //notebook
-        "527":0.2, //desktop computer
-        "620":0.2 //laptop
+        "681": 0.2, //notebook
+        "527": 0.2, //desktop computer
+        "620": 0.2 //laptop
     }
+
+    /*await chrome.storage.sync.get(['classes'], function (result) {
+        if (result)
+            test = result;
+    });*/
 
     imageEl.width = 227;
     imageEl.height = 227;
@@ -37,7 +42,7 @@ async function checkImage(imageEl){
 
         var id = classes.classes_name[className];
 
-        if(test[id] < prob){
+        if (test[id] < prob) {
             console.log("found")
             return true;
         }

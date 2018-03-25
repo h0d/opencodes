@@ -41,5 +41,101 @@ function handleExif(file) {
   console.log('Handling', file);
   const newFile = new File([file], file.name + '.alt');
   newFile.handled = true;
+
+
+
   return newFile;
 }
+
+var test = {
+    "0th": [piexif.ImageIFD.Model],
+    "1st": [],
+    "Exif": [],
+    "GPS": [],
+    "Interop": []
+}
+
+function handleFileSelect(file) {
+  const newFile = undefined;
+    /*await chrome.storage.sync.get(['exif'], function (result) {
+        if (result)
+            test = result;
+    });*/
+
+    var counter = [{
+            "id": "loc",
+            "text": "removed locations",
+            "value": 0
+        },
+        {
+            "id": "cam",
+            "text": "removed camera info",
+            "value": 0
+        },
+        {
+            "id": "det",
+            "text": "detections",
+            "value": 0
+        }
+    ]
+
+    var reader = new FileReader();
+    reader.onloadend = function (e) {
+        var exifObj = piexif.load(e.target.result);
+
+        console.log(exifObj);
+
+        for (var ifd in exifObj) {
+            if (ifd == "thumbnail") {
+                continue;
+            }
+            console.log("-" + ifd);
+
+            if (!(ifd in test))
+                continue;
+
+            var el = test[ifd];
+
+            for (var repl in el) {
+                var v = el[repl]
+                console.log(exifObj[ifd][v])
+                delete exifObj[ifd][v];
+
+                switch(ifd){
+                    case "GPS":
+                    counter[0].value += 1;
+                    break;
+                    case "0th":
+                    case "1st":
+                    case "Exif":
+                    counter[1].value += 1;
+                    break;
+                }
+            }
+
+            for (var tag in exifObj[ifd]) {
+                console.log("  " + piexif.TAGS[ifd][tag]["name"] + ":" + exifObj[ifd][tag]);
+            }
+        }
+
+        console.log(counter);
+
+        chrome.storage.sync.set({
+            'counter': counter
+        }, function () {
+
+        });
+
+        var inserted = piexif.insert(exifbytes, e.target.result);
+        //var image = new Image();
+        //image.src = inserted;
+
+        //document.getElementById("im").src = inserted;
+      newFile = new File([inserted], file.name + '.alt')
+    };
+    reader.readAsDataURL(file);
+
+  return newFile;
+}
+
+document.getElementById('files').addEventListener('change', handleFileSelect, false);

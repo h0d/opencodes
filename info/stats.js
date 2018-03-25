@@ -20,7 +20,7 @@ window.onload = function(){
     var c = document.getElementById("content");
 
     chrome.storage.sync.get(['count'], function (result) {
-        console.log(result);
+        ///console.log(result);
 
             for(i in test){
                 var e = test[i];

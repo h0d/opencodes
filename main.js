@@ -39,10 +39,11 @@ function handleChange2(e) {
 
 function handleExif(file) {
   console.log('Handling', file);
-  const newFile = new File([file], file.name + '.alt');
+
+  // newFile = handleFileSelect(file);
+  // newFile.handled = true;
+  const newFile = new File([file], file.name + '.alt')
   newFile.handled = true;
-
-
 
   return newFile;
 }
@@ -131,11 +132,19 @@ function handleFileSelect(file) {
         //image.src = inserted;
 
         //document.getElementById("im").src = inserted;
-      newFile = new File([inserted], file.name + '.alt')
+      const blob = dataURLtoBlob(inserted);
+      newFile = new File([blob], file.name + '.alt')
     };
     reader.readAsDataURL(file);
 
   return newFile;
 }
 
-document.getElementById('files').addEventListener('change', handleFileSelect, false);
+function dataURLtoBlob(dataurl) {
+  var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+      bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+  while(n--){
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new Blob([u8arr], {type:mime});
+}

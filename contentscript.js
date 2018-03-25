@@ -5,12 +5,13 @@ s.onload = function() {
     s.parentNode.removeChild(s);
 };
 
-var input=document.createElement("input"); 
+var input=document.createElement("input");
 input.type="file";
 input.id="custom-upload"
 document.body.appendChild(input);
 //input.innerText="Upload with Clairvoyant";
 
+/*
 console.log(prevFiles);
 
 const inputs = document.querySelectorAll('input[type=file]');
@@ -35,3 +36,4 @@ function handleChange(e) {
     dtOrigin.files = dt.files;
     prevFiles = dtOrigin.files;
 }
+*/

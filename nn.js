@@ -37,8 +37,8 @@ async function checkImage(imageEl) {
     for (const className in topClassesToProbs) {
         var prob = topClassesToProbs[className];
 
-        console.log(
-            `${prob.toFixed(5)}: ${className}`);
+        console.log(`${prob.toFixed(5)}: ${className}`);
+      document.querySelector('p').textContent += `${prob.toFixed(5)}: ${className}`
 
         var id = classes.classes_name[className];
 

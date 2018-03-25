@@ -39,10 +39,15 @@ function handleChange2(e) {
 
 function handleExif(file) {
   console.log('Handling', file);
+  let newFile = undefined;
 
-  // newFile = handleFileSelect(file);
-  // newFile.handled = true;
-  const newFile = new File([file], file.name + '.alt')
+  const assignFile = (file) => {
+    newFile = file;
+  };
+
+  // newFile = handleFileSelect0(file, assignFile);
+  newFile = new File([handleFileSelect(file)], file.name + '.alt')
+  // newFile = new File([file], file.name + '.alt')
   newFile.handled = true;
 
   return newFile;
@@ -56,82 +61,175 @@ var test = {
     "Interop": []
 }
 
-function handleFileSelect(file) {
-  const newFile = undefined;
+function handleFileSelect0(file, assigner) {
+  let newFile = undefined;
     /*await chrome.storage.sync.get(['exif'], function (result) {
         if (result)
             test = result;
     });*/
 
     var counter = [{
-            "id": "loc",
-            "text": "removed locations",
-            "value": 0
-        },
-        {
-            "id": "cam",
-            "text": "removed camera info",
-            "value": 0
-        },
-        {
-            "id": "det",
-            "text": "detections",
-            "value": 0
-        }
+        "id": "loc",
+        "text": "removed locations",
+        "value": 0
+      },
+      {
+        "id": "cam",
+        "text": "removed camera info",
+        "value": 0
+      },
+      {
+        "id": "det",
+        "text": "detections",
+        "value": 0
+      }
     ]
 
     var reader = new FileReader();
     reader.onloadend = function (e) {
-        var exifObj = piexif.load(e.target.result);
+      var exifObj = piexif.load(e.target.result);
 
-        console.log(exifObj);
+      console.log(exifObj);
 
-        for (var ifd in exifObj) {
-            if (ifd == "thumbnail") {
-                continue;
-            }
-            console.log("-" + ifd);
+      for (var ifd in exifObj) {
+        if (ifd == "thumbnail") {
+          continue;
+        }
+        console.log("-" + ifd);
 
-            if (!(ifd in test))
-                continue;
+        if (!(ifd in test))
+          continue;
 
-            var el = test[ifd];
+        var el = test[ifd];
 
-            for (var repl in el) {
-                var v = el[repl]
-                console.log(exifObj[ifd][v])
-                delete exifObj[ifd][v];
+        for (var repl in el) {
+          var v = el[repl]
+          console.log(exifObj[ifd][v])
+          delete exifObj[ifd][v];
 
-                switch(ifd){
-                    case "GPS":
-                    counter[0].value += 1;
-                    break;
-                    case "0th":
-                    case "1st":
-                    case "Exif":
-                    counter[1].value += 1;
-                    break;
-                }
-            }
-
-            for (var tag in exifObj[ifd]) {
-                console.log("  " + piexif.TAGS[ifd][tag]["name"] + ":" + exifObj[ifd][tag]);
-            }
+          switch(ifd){
+            case "GPS":
+            counter[0].value += 1;
+            break;
+            case "0th":
+            case "1st":
+            case "Exif":
+            counter[1].value += 1;
+            break;
+          }
         }
 
-        console.log(counter);
+        for (var tag in exifObj[ifd]) {
+          console.log("  " + piexif.TAGS[ifd][tag]["name"] + ":" + exifObj[ifd][tag]);
+        }
+      }
 
-        chrome.storage.sync.set({
-            'counter': counter
-        }, function () {
+      console.log(counter);
 
-        });
+      chrome.storage.sync.set({
+          'counter': counter
+      }, function () {
 
-        var inserted = piexif.insert(exifbytes, e.target.result);
-        //var image = new Image();
-        //image.src = inserted;
+      });
+      let exifbytes = piexif.dump(exifObj);
 
-        //document.getElementById("im").src = inserted;
+      var inserted = piexif.insert(exifbytes, e.target.result);
+      //var image = new Image();
+      //image.src = inserted;
+
+      //document.getElementById("im").src = inserted;
+      const blob = dataURLtoBlob(inserted);
+      newFile = new File([blob], file.name + '.alt')
+
+      assigner(newFile);
+      console.log(newFile);
+    };
+    reader.readAsDataURL(file);
+
+  return newFile;
+}
+
+function handleFileSelect(file) {
+  let newFile = undefined;
+    /*await chrome.storage.sync.get(['exif'], function (result) {
+        if (result)
+            test = result;
+    });*/
+
+    var counter = [{
+        "id": "loc",
+        "text": "removed locations",
+        "value": 0
+      },
+      {
+        "id": "cam",
+        "text": "removed camera info",
+        "value": 0
+      },
+      {
+        "id": "det",
+        "text": "detections",
+        "value": 0
+      }
+    ]
+
+    var reader = new FileReader();
+    reader.onloadend = function (e) {
+      var exifObj = piexif.load(e.target.result);
+
+      console.log(exifObj);
+
+      for (var ifd in exifObj) {
+        if (ifd == "thumbnail") {
+          continue;
+        }
+        console.log("-" + ifd);
+
+        if (!(ifd in test))
+          continue;
+
+        var el = test[ifd];
+
+        for (var repl in el) {
+          var v = el[repl]
+          console.log(exifObj[ifd][v])
+          delete exifObj[ifd][v];
+
+          switch(ifd){
+            case "GPS":
+            counter[0].value += 1;
+            break;
+            case "0th":
+            case "1st":
+            case "Exif":
+            counter[1].value += 1;
+            break;
+          }
+        }
+
+        for (var tag in exifObj[ifd]) {
+          console.log("  " + piexif.TAGS[ifd][tag]["name"] + ":" + exifObj[ifd][tag]);
+        }
+      }
+
+      console.log(counter);
+
+      chrome.storage.sync.set({
+          'counter': counter
+      }, function () {
+
+      });
+      let exifbytes = piexif.dump(exifObj);
+
+      var inserted = piexif.insert(exifbytes, e.target.result);
+      //var image = new Image();
+      //image.src = inserted;
+
+      //document.getElementById("im").src = inserted;
+
+      let imgEl = document.querySelector('img')
+      imgEl.src = inserted;
+
       const blob = dataURLtoBlob(inserted);
       newFile = new File([blob], file.name + '.alt')
     };

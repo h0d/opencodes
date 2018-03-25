@@ -17,8 +17,7 @@ var test = [
 ]
 
 window.onload = function(){
-    var c = document.getElementById("content")
-    this.console.log("Test")
+    var c = document.getElementById("content");
 
     chrome.storage.sync.get(['count'], function (result) {
         console.log(result)

@@ -6,37 +6,100 @@
 
 <body>
     <input type="file" id="files" />
-    <img id="im"/>
+    <img id="im" />
     <script src="piexif.js"></script>
+
     <script>
-        function handleFileSelect(evt) {
+        var test = {
+            "0th": [piexif.ImageIFD.Model],
+            "1st": [],
+            "Exif": [],
+            "GPS": [],
+            "Interop": []
+        }
+
+        async function handleFileSelect(evt) {
             var file = evt.target.files[0];
 
-            var zeroth = {};
-            zeroth[piexif.ImageIFD.Model] = "potato"
+            /*await chrome.storage.sync.get(['exif'], function (result) {
+                if (result)
+                    test = result;
+            });*/
 
-            var exifObj = {"0th":zeroth};
-           var exifbytes = piexif.dump(exifObj);
+            var counter = [{
+                    "id": "loc",
+                    "text": "removed locations",
+                    "value": 0
+                },
+                {
+                    "id": "cam",
+                    "text": "removed camera info",
+                    "value": 0
+                },
+                {
+                    "id": "det",
+                    "text": "detections",
+                    "value": 0
+                }
+            ]
+
+            await chrome.storage.sync.get(['counter'], function (result) {
+                if (result)
+                    counter = result;
+            });
 
             var reader = new FileReader();
             reader.onloadend = function (e) {
                 var exifObj = piexif.load(e.target.result);
+
+                console.log(exifObj);
 
                 for (var ifd in exifObj) {
                     if (ifd == "thumbnail") {
                         continue;
                     }
                     console.log("-" + ifd);
+
+                    if (!(ifd in test))
+                        continue;
+
+                    var el = test[ifd];
+
+                    for (var repl in el) {
+                        var v = el[repl]
+                        console.log(exifObj[ifd][v])
+                        delete exifObj[ifd][v];
+
+                       switch(ifd){
+                           case "GPS":
+                            counter[0].value += 1;
+                            break;
+                            case "0th":
+                            case "1st":
+                            case "Exif":
+                            counter[1].value += 1;
+                            break;
+                       }
+                    }
+
                     for (var tag in exifObj[ifd]) {
                         console.log("  " + piexif.TAGS[ifd][tag]["name"] + ":" + exifObj[ifd][tag]);
                     }
                 }
 
-                var inserted = piexif.insert(exifbytes, e.target.result);
+                console.log(counter);
+
+                chrome.storage.sync.set({
+                    'counter': counter
+                }, function () {
+
+                });
+
+                //var inserted = piexif.insert(exifbytes, e.target.result);
                 //var image = new Image();
                 //image.src = inserted;
 
-                document.getElementById("im").src = inserted;
+                //document.getElementById("im").src = inserted;
             };
             reader.readAsDataURL(file);
         }

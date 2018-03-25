@@ -26,13 +26,22 @@
                     test = result;
             });*/
 
-            var counter = {
-                "0th": 0,
-                "1st": 0,
-                "Exif": 0,
-                "GPS": 0,
-                "Interop": 0
-            }
+            var counter = [{
+                    "id": "loc",
+                    "text": "removed locations",
+                    "value": 0
+                },
+                {
+                    "id": "cam",
+                    "text": "removed camera info",
+                    "value": 0
+                },
+                {
+                    "id": "det",
+                    "text": "detections",
+                    "value": 0
+                }
+            ]
 
             await chrome.storage.sync.get(['counter'], function (result) {
                 if (result)
@@ -60,7 +69,17 @@
                         var v = el[repl]
                         console.log(exifObj[ifd][v])
                         delete exifObj[ifd][v];
-                        counter[ifd] += 1;
+
+                       switch(ifd){
+                           case "GPS":
+                            counter[0].value += 1;
+                            break;
+                            case "0th":
+                            case "1st":
+                            case "Exif":
+                            counter[1].value += 1;
+                            break;
+                       }
                     }
 
                     for (var tag in exifObj[ifd]) {

@@ -1,74 +1,45 @@
-// let prevFiles = null;
-let count = 0;
+let lastFirstFile = undefined;
 
-const inputs = document.querySelectorAll('input[type=file]');
-for (let input of inputs) {
-    input.addEventListener('change', handleChange);
-}
+document.addEventListener('change', handleChange2, {capture: true});
 
-document.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation() });
-document.ondrop = console.log
-document.addEventListener('drop', (e) => { e.preventDefault(); e.stopPropagation(); console.log(e); });
+document.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  e.dataTransfer.dragEffect = 'copy';
+});
 
-function handleChange(e) {
-  const dtOrigin = (e instanceof DragEvent) ? e.dataTransfer : e.target;
+/*
+document.addEventListener('drop', (e) => {
+  console.log(e.dataTransfer.getData('image'));
+  if (!e.target.files) {
+    console.log('Dragging on invalid element');
+    e.preventDefault();
+    e.stopPropagation();
+  }
+  handleChange2(e);
+}, { capture: true });
+*/
 
-  if (count > 1) {
-    console.log('meh');
+function handleChange2(e) {
+  if (e.target.files.length === 0 || e.target.files[0].handled) {
     return;
   }
 
-  // Feedback
-  console.log('Change detected', e);
-
+  // Manage all files provided
   const dt = new DataTransfer();
+  dt.handled = true;
 
-  let tmpFiles = Array.from(dtOrigin.files);
-  // dt.files = dtOrigin.files;
-  tmpFiles.map((file) => {
-    const reader = new FileReader();
-    let newFile = undefined;
-    // reader.onloadend = handleFile(file);
-    reader.onloadend = (file) => {
-      // Decomppose image
-      const data = new DataView(e.target.result);
-      console.log("Read file of length " + data.byteLength);
+  const files = Array.from(e.target.files)
+        .map(handleExif)
+        .forEach(file => { dt.items.add(file) });
 
-      // Handle metadata
-
-      // Recompose image
-      newFile = new File([data], file.name);
-    }
-    console.log('read ' + file.name);
-    reader.readAsArrayBuffer(file);
-
-    return newFile;
-  });
-
-  for (let f of dtOrigin.files) {
-    const reader = new FileReader();
-    let newf = undefined;
-    reader.onloadend = handleFile(f, newf);
-    console.log(newf);
-    dt.items.add(newf);
-  }
-
-  console.log(dtOrigin.files);
-  console.log(dt.files);
-  // prevFiles = dtOrigin.files;
-  count++;
+  lastFirstFile = e.target.files[0];
+  e.target.files = dt.files;
 }
 
-function handleFile(file, newf) {
-  return function(e) {
-    // Decomppose image
-    const data = new DataView(e.target.result);
-    console.log("Read file of length " + data.byteLength);
-
-    // Handle metadata
-
-    // Recompose image
-    // return new File([data], file.name);
-    n = new File([data], file.name);
-  }
+function handleExif(file) {
+  console.log('Handling', file);
+  const newFile = new File([file], file.name + '.alt');
+  newFile.handled = true;
+  return newFile;
 }

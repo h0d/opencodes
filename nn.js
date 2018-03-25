@@ -6,8 +6,19 @@ const math = new dl.NDArrayMathGPU();
 const squeezeNet = new squeezenet.SqueezeNet(math);
 squeezeNet.load();
 
-async function infer(imageEl) {
+function infer(imageEl) {
     console.clear();
+    
+    checkImage(imageEl);
+}
+
+async function checkImage(imageEl){
+    var test = {
+        "681":0.2, //notebook
+        "527":0.2, //desktop computer
+        "620":0.2 //laptop
+    }
+
     imageEl.width = 227;
     imageEl.height = 227;
     imageEl.style.width = '227px';
@@ -17,10 +28,21 @@ async function infer(imageEl) {
 
     const topClassesToProbs = await squeezeNet.getTopKClasses(logits, 10);
 
+
     for (const className in topClassesToProbs) {
+        var prob = topClassesToProbs[className];
+
         console.log(
-            `${topClassesToProbs[className].toFixed(5)}: ${className}`);
+            `${prob.toFixed(5)}: ${className}`);
+
+        var id = classes.classes_name[className];
+
+        if(test[id] < prob){
+            console.log("found")
+            return true;
+        }
     }
+
 }
 
 // Drag and drop handlers.

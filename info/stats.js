@@ -19,8 +19,12 @@ var test = [
 window.onload = function(){
     var c = document.getElementById("content");
 
+    chrome.storage.sync.set({'count': test}, function() {
+        //console.log('Value is set to ' + test);
+      });
+
     chrome.storage.sync.get(['count'], function (result) {
-        console.log(result);
+        ///console.log(result);
 
             for(i in test){
                 var e = test[i];
@@ -44,11 +48,9 @@ window.onload = function(){
         
                 c.appendChild(div);
         
-                console.log(e);
+                //console.log(e);
             }
 
-            chrome.storage.sync.set({'count': test}, function() {
-                console.log('Value is set to ' + test);
-              });
+
     });
 };
